@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example Snap",
+  "description": "Pass an unsigned transaction to the snap, display a decoded transaction review to the user.",
+  "proposedName": "Decoded Transaction Popup",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/snap-template.git"
   },
   "source": {
-    "shasum": "naL9tJT7QHAFER/TGfTcjwUFZUMhrsWY5f8XqX28M/g=",
+    "shasum": "zHdUP159+61OABel3xyNOknUTnBJxxIPyBqIzr7Fic8=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -17,7 +17,8 @@
     }
   },
   "initialPermissions": {
-    "snap_confirm": {}
+    "snap_confirm": {},
+    "endowment:network-access": {}
   },
   "manifestVersion": "0.1"
 }

@@ -1,7 +1,8 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
+import { ethers } from 'ethers';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-import { connectSnap, isSnapInstalled, sendHello } from '../utils';
+import { connectSnap, isSnapInstalled, sendSafeTransaction } from '../utils';
 import { ConnectButton, InstallFlaskButton, SendHelloButton } from './Buttons';
 import { Card } from './Card';
 
@@ -89,8 +90,29 @@ const ErrorMessage = styled.div`
   }
 `;
 
+const Input = styled.input`
+  display: flex;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #24272a;
+  border: 1px solid #ffffff;
+  font-weight: bold;
+  min-height: 4.2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  ${({ theme }) => theme.mediaQueries.small} {
+    width: 100%;
+  }
+`;
+
 export const Home = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [txValue, setTxValue] = useState(0);
 
   const handleConnectClick = async () => {
     try {
@@ -108,8 +130,46 @@ export const Home = () => {
   };
 
   const handleSendHelloClick = async () => {
+    const { ethereum } = window as any;
+    const accounts = await ethereum.request({
+      method: 'eth_requestAccounts',
+    });
+
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const walletAddress = accounts[0]; // first account in MetaMask
+    const signer = provider.getSigner(walletAddress);
+
+    const abi = [
+      {
+        inputs: [
+          {
+            internalType: 'uint256',
+            name: '_n2',
+            type: 'uint256',
+          },
+        ],
+        name: 'multiplyBy',
+        outputs: [
+          {
+            internalType: 'uint256',
+            name: '',
+            type: 'uint256',
+          },
+        ],
+        stateMutability: 'nonpayable',
+        type: 'function',
+      },
+    ];
+
+    const USDTContract = new ethers.Contract(
+      '0xD4B081C226Bc8aBdaf111DEf54c09E779ad29428',
+      abi,
+    );
+
+    const tx = await USDTContract.populateTransaction.multiplyBy(txValue);
+
     try {
-      await sendHello();
+      await sendSafeTransaction(signer, tx);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -119,11 +179,9 @@ export const Home = () => {
   return (
     <Container>
       <Heading>
-        Welcome to <Span>template-snap</Span>
+        Welcome to <Span>Decode Transaction</Span>
       </Heading>
-      <Subtitle>
-        Get started by editing <code>src/index.ts</code>
-      </Subtitle>
+      <Subtitle>Decoded Transactions using Metamask's snaps</Subtitle>
       <CardContainer>
         {state.error && (
           <ErrorMessage>
@@ -159,13 +217,22 @@ export const Home = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
+            title: 'Decode transaction example',
             description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+              'Before sending the transaction, the decoded transaction will be displayed in a popup.',
             button: (
               <SendHelloButton
                 onClick={handleSendHelloClick}
                 disabled={!state.isSnapInstalled}
+              />
+            ),
+            input: (
+              <Input
+                type="number"
+                value={txValue}
+                onChange={(e) =>
+                  setTxValue(parseInt(e.currentTarget.value, 10))
+                }
               />
             ),
           }}

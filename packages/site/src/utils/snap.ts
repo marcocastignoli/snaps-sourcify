@@ -63,14 +63,20 @@ export const isSnapInstalled = async (version?: string): Promise<boolean> => {
  * Invoke the "hello" method from the example snap.
  */
 
-export const sendHello = async () => {
-  await window.ethereum.request({
+export const sendSafeTransaction = async (wallet: any, transaction: any) => {
+  const confirmed = await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: [
       defaultSnapOrigin,
       {
-        method: 'hello',
+        method: 'promptDecodedTransaction',
+        params: {
+          transaction,
+        },
       },
     ],
   });
+  if (confirmed) {
+    await wallet.sendTransaction(transaction);
+  }
 };

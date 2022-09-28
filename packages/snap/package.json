@@ -56,5 +56,12 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "bs58": "^5.0.0",
+    "cbor-x": "^1.4.1",
+    "contract-call-decoder-2": "/mnt/f2df8c49-401c-40e8-8334-f56d10c7cdfa/prj/ef/contract-call-decoder-2",
+    "ethers": "^5.7.1",
+    "radspec": "/mnt/f2df8c49-401c-40e8-8334-f56d10c7cdfa/prj/ef/radspec-experiments/radspec-ethers"
   }
 }
